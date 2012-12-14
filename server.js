@@ -6,6 +6,7 @@ var ntwitter = require('ntwitter');
 var fs = require('fs');
 var pages = require('./pages.js');
 var tweeter = new ntwitter(options.twitter);
+var http = require('http')
 
 var me = options.twitter.username;
 
@@ -110,4 +111,13 @@ function bot() {
     });
   });
 }
+var port = process.env.PORT || 8080;
 
+http.createServer(function(req, res) {
+  req.addListener('end', function() {
+           res.end();
+   console.log('%s - %s', req.url, res.message);
+
+  });
+
+}).listen(port);
