@@ -1,0 +1,337 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>GooseBumpsBot by camilamercado</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>GooseBumpsBot</h1>
+        <p>A make your own adventure TwitterBot powered by Node js</p>
+
+        <p class="view"><a href="https://github.com/camilamercado/goosebumpsbot">View the Project on GitHub <small>camilamercado/goosebumpsbot</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/camilamercado/goosebumpsbot/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/camilamercado/goosebumpsbot/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/camilamercado/goosebumpsbot">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>@GiveGoosebumps</h1>
+
+<p>A Bot that uses Twitters API to let users recreate R.L Stine's "Give Yourself Goosebumps" series via Tweet.</p>
+
+<p>By Tweeting @GiveGoosebumps, any twitter user can trigger an automatic response from the Bot prompting them to "Just tweet me hello and the game will begin!"</p>
+
+<p>Once the user tweets (@GiveGoosebumps hello) The narrative initiates and they will receive the first part of the story:</p>
+
+<p><code>
+@User http://camilamercado.com/GBot/pp/001.htm 1355579704  To continue tweet back  yoyo or cellar
+</code>
+Each tweet contains a URL address where the user can read segments from the original Goose Bumps book to inform their next decision and continue the game:</p>
+
+<p><code>
+@GiveGoosebumps yoyo
+</code>
+From here the narrative takes as many twists and turns as the GooseBumps book provides until some END is met, good or bad. At this point @GiveGoosebumps will respond:</p>
+
+<p><code>
+@User http://camilamercado.com/GBot/pp/101.htm 1355579735  To continue tweet back  startover
+</code>
+...</p>
+
+<h2>Development</h2>
+
+<p>In order to develop the TwitterBot into its final stages many steps had to occur</p>
+
+<h3>Step One</h3>
+
+<p>Mapping out the Narrative. In order to get an idea for the structure of the text, testing was done on</p>
+
+<p><a href="http://arborjs.org/halfviz/#/house-of-danger">http://arborjs.org/halfviz/#/house-of-danger</a></p>
+
+<p>A site the convinientely enough was built to make interactive paths from data. Many examples of similar 'Make your own Adventure' type books had also been mapped out on the site. Here is an example of how the information was then organized:</p>
+
+<pre><code>Decision 1 Pg.3 {color:red, label:Decision 1}
+
+Option 1A Pg.16 {color:blue, label: Yoyo}
+Option 1B Pg.101 {color:blue, label: Cellar}
+
+Decision 1 Pg.3 -&gt; Option 1A Pg.16
+Decision 1 Pg.3 -&gt;Option 1B Pg.101
+
+Option 1A Pg.16 -&gt;Decision 2 Pg.82
+Option 1B Pg.101 -&gt;GAME OVER`1. 
+</code></pre>
+
+<p>From this model, each decision gets accompanied by the page on which it occurs, a label that corresponds to the narrative, and the direction in which it continues. Once all of the decisions were painstakingly mapped out, the final product came like this:</p>
+
+<p><img src="MAP.jpg" alt="map"></p>
+
+<h3>Step Two</h3>
+
+<p>Once all of the information had been taken down, it was time to reformat it in order to make a document the Bot could parse through, and progress the narrative. </p>
+
+<pre><code>page_0: {
+        url: 'http://camilamercado.com/GBot/pp/001.htm',
+        opts: "Hello",
+        decisions:[
+            {
+                page:1,
+                name:'Hello'
+            }
+        ]
+    },
+
+
+    page_1: {
+        url: 'http://camilamercado.com/GBot/pp/001.htm',
+        opts: "yoyo or cellar",
+        decisions:[
+            {
+                page:16,
+                name:'YoYo'
+            }, 
+            {
+                page:101,
+                name:'Cellar'
+            }
+        ]
+    },
+</code></pre>
+
+<p>The final format assigns page_#'s to the array, in order to catalogue each URL and name that corresponds to each decision so that the Bot can jump from one decision to the next, providing the story text in the URL. </p>
+
+<h3>Step Three</h3>
+
+<p>Now that the Narrative had been mapped, it was time to start putting together the Bot. After much research, the decision was made to have the Bot run on Node.js because of its Real-Time capabilities, and a breadth of documentation of other projects of a similar nature.
+ At this point I came across a similar Twitter Bot named @Synomat whose purpose was to automatically tweet synonyms to other users. </p>
+
+<p>The creator of the Bot, Tom Boutell made a blog "Justjs" helping to explain his process and teach js. </p>
+
+<p><a href="https://github.com/boutell/justjs/tree/master/examples/synomat-1">https://github.com/boutell/justjs/tree/master/examples/synomat-1</a>
+<a href="http://justjs.com/posts/synomat-a-twitter-thesaurus-powered-by-node-js">http://justjs.com/posts/synomat-a-twitter-thesaurus-powered-by-node-js</a></p>
+
+<p>Provided on the blog were the Github repositories, which where then forked over to create GooseBumpsBot.
+In order to run node, it must be downloaded from the internet. Once node was successfully installed, a </p>
+
+<p>npm install</p>
+
+<p>command was run from inside the justjs directory, in order to access the rest of the required repo's and documents.Starting from the top, Node documents give a directory of other docs needed to run the program:</p>
+
+<pre><code>var _ = require('underscore');
+var options = require('./options.js');
+var ntwitter = require('ntwitter');
+var fs = require('fs');
+</code></pre>
+
+<p>Now working with Node.js it was time to register @GiveGoosebumps with the Twitter Developer system and get the Oauth keys from (options.js) registered to the Bot in order to fill out options.js- a document that would be required to run the bot:</p>
+
+<pre><code>module.exports = {
+  twitter: {
+    username: 'synomat',
+    consumer_key: 'xxxx',
+    consumer_secret: 'xxxx',
+    access_token_key: 'xxxx',
+    access_token_secret: 'xxxx'
+  }
+};
+</code></pre>
+
+<h3>Step Four</h3>
+
+<p>Once the keys were filled out it was time to re-write the code to fit @GoosebumpsBot. Starting by requiring pages.js- the external document containing the story map. var current_page was set up to monitor the progression of the story as set up in the pages.js </p>
+
+<pre><code>var _ = require('underscore');
+var options = require('./options.js');
+var ntwitter = require('ntwitter');
+var fs = require('fs');
+var pages = require('./pages.js'); 
+var tweeter = new ntwitter(options.twitter);
+var http = require('http')
+
+var me = options.twitter.username;
+
+var currentPage = 'page_0';
+</code></pre>
+
+<p>From the Bot Function that was originally provided in the Justjs github, little was changed in its functionality except adding the current_page variable to move the tweets forward. Once The server identifies the credentials provided from options.js, the bot is ready to start listening for tweets. </p>
+
+<pre><code>function bot() {
+  tweeter.verifyCredentials(function (err, data) {
+    if (err) {
+      console.log("Credentials bad. Bummer. Go check that in dev.twitter.com.");
+    }
+    console.log("Verified credentials");
+  })
+  .stream('user', { track: options.twitter.username }, function(stream) {
+  // .stream('statuses/sample', function(stream) {
+    console.log("Listening to tweets");
+    stream.on('data', function (data) {
+
+      if (!data.user)
+      {
+        // Not a tweet. For example I've received a list of friend ids
+        // here for some reason
+        return;
+      }
+
+   var them = data.user.screen_name;
+</code></pre>
+
+<p>At this point the bot will begin to read through the tweet trying to find out if the content of the tweet (word), is equal to (decision.name) as provided in pages.js. If it is a match or (true) it will add the value of currentPage with decision.page and the story jumps ahead.</p>
+
+<pre><code>if (data.in_reply_to_screen_name.toLowerCase() === me.toLowerCase()) {
+        var result = data.text.match(/ (\w+)\s*$/);
+
+        if (result) {
+          var word = result[1].toLowerCase(),
+            isMatch=false;
+        console.log(pages[currentPage]);
+          _.each(pages[currentPage].decisions, function(decision, i){
+            console.log(decision);
+            if(word === decision.name.toLowerCase()){
+              isMatch=true;
+              currentPage = 'page_' + decision.page;
+            }
+
+          });
+  });
+          console.log('ok');
+          console.log(isMatch);
+</code></pre>
+
+<p>From here a lot of editing had to occur, to replace the thesaurus sourcing code of @Synomat, with the code needed to make @GiveGoosebumps.</p>
+
+<pre><code>var currentTime = Math.round(+new Date()/1000);
+
+          if(isMatch) {
+              // match
+              var replyText = pages[currentPage].url + ' ' + currentTime + ' ' + " To continue tweet back  " + pages[currentPage].opts,
+
+                nextOpts = '';
+
+                console.log(replyText);
+
+              _.each(pages[currentPage].content, function(decision, i){
+
+                if(i&gt;0) {
+                  nextOpts += " or";
+                }
+
+                nextOpts =  nextOpts + ' ' + decision.name;
+              });
+
+              replyText += nextOpts;
+
+              console.log(replyText);
+              reply(replyText);
+</code></pre>
+
+<p>In order to get around Twitters rules on spambots, a simple variable is made called currentTime, which gets called by the variable replyText every time the function is run and adds a different timestamp to every tweet run by the variable replyText. The body of reply text contains URL corresponding to the currentPage, the currentTime stamp, and a string that sources the new decision choices in the tweet text output. </p>
+
+<pre><code>} else {
+
+          }
+
+        } else {
+          reply("Just tweet me hello and the game will begin!");
+        }
+      }
+      function reply(msg)
+      {
+        tweeter.updateStatus("@" + them + " " + msg, function(err, data)
+        {
+          if (err)
+          {
+            console.log(err);
+            // Not a big deal if a tweet fails. We could log something interesting though.
+          }
+        });
+      }
+    });
+</code></pre>
+
+<p>In this code tweeter.updateStatus is run to output the message. <a href="https://github.com/them" class="user-mention">@them</a> becomes the initiating users twitter handle, and msg is the content of replyText. </p>
+
+<pre><code>stream.on('end', function (response) {
+      // Handle a disconnection
+      console.log('end event, listening again');
+      setTimeout(1000, listen);
+    });
+    stream.on('destroy', function (response) {
+      // Handle a 'silent' disconnection from Twitter, no end/error event fired
+      console.log('destroy event, listening again');
+      setTimeout(1000, listen);
+    });
+  });
+}
+var port = process.env.PORT || 8080;
+
+http.createServer(function(req, res) {
+  req.addListener('end', function() {
+           res.end();
+   console.log('%s - %s', req.url, res.message);
+
+  });
+
+}).listen(port);
+</code></pre>
+
+<p>The rest of the Document is set up to direct Node to the correct port to listen on and execute activity.</p>
+
+<h3>Step Five</h3>
+
+<p>Now that the code was done, it was time to run the program through Terminal, directly through the computers server. To do this, the command was done to cd into the correct depository, and then run node.</p>
+
+<p>node server.js</p>
+
+<p>At this point the bot should console.log:</p>
+
+<p>Listening to tweets
+Verified credentials</p>
+
+<p>This means everything has worked up to this point, and the bot is ready to listen for tweets. When they come in the get logged as:</p>
+
+<p>{ url: '<a href="http://camilamercado.com/GBot/pp/001.htm">http://camilamercado.com/GBot/pp/001.htm</a>',
+  opts: 'Hello',
+  decisions: [ { page: 1, name: 'Hello' } ] }
+{ page: 1, name: 'Hello' }
+ok
+true
+<a href="http://camilamercado.com/GBot/pp/001.htm">http://camilamercado.com/GBot/pp/001.htm</a> 1355579704  To continue tweet back  yoyo or cellar</p>
+
+<p>Looks like everything has worked, now its time to check if the message was posted by @GiveGoosebumps on Twitter.</p>
+
+<p><img src="tweet.jpg" alt="tweet"></p>
+
+<p>It worked! Try it out @GiveGoosebumps</p>
+
+<p>Shout out to 
+Erin Sparling
+Joe Kendall</p>
+
+<p>and of course</p>
+
+<p>R.L STINE</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/camilamercado">camilamercado</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
