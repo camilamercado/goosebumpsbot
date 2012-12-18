@@ -57,6 +57,11 @@ function bot() {
           });
           console.log('ok');
           console.log(isMatch);
+          
+var currentTime = Math.round(+new Date()/1000);
+
+
+
           if(isMatch) {
               // match
               var replyText = pages[currentPage].url +' '+ [currentTime] + " To continue tweet back  " + pages[currentPage].opts,
